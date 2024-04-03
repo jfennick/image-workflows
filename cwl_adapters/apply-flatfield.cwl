@@ -10,34 +10,12 @@ doc: |-
 
 requirements:
   DockerRequirement:
-# Need to specify the full absolute path to main.py in ENTRYPOINT. Otherwise:
-# ENTRYPOINT ["python3" "main.py"]
-# "python3: can't open file '/rFPGwK/main.py': [Errno 2] No such file or directory"
-# Solution: use `FROM polusai/... ENTRYPOINT []` to reset the entrypoint
     dockerPull: polusai/apply-flatfield-plugin:2.0.0-dev10
-#   EnvVarRequirement:
-# # See https://www.commonwl.org/user_guide/topics/environment-variables.html
-# # We can't even set WORKDIR, because CWL adds --workdir=/rFPGwK to the docker command,
-# # which takes precedence.
-#     envDef:
-#       WORKDIR: /opt/executables
-# https://cwl.discourse.group/t/override-docker-entrypoint-in-command-line-tool/695
-# Since we cannot override Docker entrypoints in CWL, we should either not use WORKDIR,
-# not use ENTRYPOINT, not use relative paths, or preferably all of the above.
   InitialWorkDirRequirement:
     listing:
     - entry: $(inputs.outDir)
       writable: true  # Output directories must be writable
   InlineJavascriptRequirement: {}
-
-# This also doesn't work, again due to --workdir=/rFPGwK causing an error before we can fix it.
-# Actually, this *does* work if you use the `FROM polusai/... ENTRYPOINT []` trick above.
-# baseCommand: [python3, /opt/executables/main.py]
-
-# # See docker_remove_entrypoints.sh
-# baseCommand: python3
-# # arguments: ["/opt/executables/main.py"]
-# arguments: ["-m", "polus.plugins.transforms.images.apply_flatfield"]
 
 inputs:
   imgDir:
