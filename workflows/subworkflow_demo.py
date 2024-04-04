@@ -55,6 +55,11 @@ def nuclear_segmentation() -> Workflow:
     ftl_plugin.binarizationThreshold = 0.5
     ftl_plugin.outDir = Path("ftl_plugin.outDir")
 
+    workflow.setattr_means_output_var()
+    workflow.outDir_apply_flatfield = apply_flatfield.outDir
+    workflow.outDir_ftl_plugin = ftl_plugin.outDir
+    workflow.setattr_means_input_val()
+
     steps = [bbbcdownload,
              subdirectory,
              filerenaming,
@@ -79,8 +84,10 @@ def feature_extraction() -> Workflow:
     # Version 0.7.5 FYI
     nyxus = Step(clt_path='../image-workflows/cwl_adapters/nyxus.cwl')
     # NOTE: NOT inpDir
-    nyxus.intDir = subworkflow.steps[5].outDir  # apply_flatfield
-    nyxus.segDir = subworkflow.steps[6].outDir  # ftl_plugin
+    # nyxus.intDir = subworkflow.steps[5].outDir  # apply_flatfield
+    # nyxus.segDir = subworkflow.steps[6].outDir  # ftl_plugin
+    nyxus.intDir = subworkflow.outDir_apply_flatfield
+    nyxus.segDir = subworkflow.outDir_ftl_plugin
     nyxus.features = config['features']
     nyxus.fpimgmax = float(2**16)
     nyxus.outputType = "singlecsv"
